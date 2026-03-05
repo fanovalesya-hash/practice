@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,6 +35,17 @@ fun MainScreen() {
     var text by remember { mutableStateOf("Green") }
     var btnColor by remember { mutableStateOf(Color.Green) }
 
+
+    val colorsMap = mapOf(
+        "red" to Color(0xFFFF0000),
+        "orange" to Color(0xFFFFA500),
+        "yellow" to Color(0xFFFFFF00),
+        "green" to Color(0xFF00FF00),
+        "blue" to Color(0xFF0000FF),
+        "indigo" to Color(0xFF4B0082),
+        "violet" to Color(0xFFEE82EE)
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -54,15 +64,12 @@ fun MainScreen() {
         Button(
             onClick = {
                 val colorName = text.trim().lowercase()
+                val searchKey = colorName.replaceFirstChar { it.uppercase() }
+                val newColor = colorsMap[colorName]
 
-                if (colorName == "red")     btnColor = Color(0xFFFF0000)
-                else if (colorName == "orange") btnColor = Color(0xFFFFA500)
-                else if (colorName == "yellow") btnColor = Color(0xFFFFFF00)
-                else if (colorName == "green")  btnColor = Color(0xFF00FF00)
-                else if (colorName == "blue")   btnColor = Color(0xFF0000FF)
-                else if (colorName == "indigo") btnColor = Color(0xFF4B0082)
-                else if (colorName == "violet") btnColor = Color(0xFFEE82EE)
-                else {
+                if (newColor != null) {
+                    btnColor = newColor
+                } else {
                     Log.e("ColorApp", "Такого цвета нет: $text")
                 }
             },
@@ -79,13 +86,9 @@ fun MainScreen() {
         Spacer(Modifier.height(8.dp))
 
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            ColorRow("Red",     Color(0xFFFF0000))
-            ColorRow("Orange",  Color(0xFFFFA500))
-            ColorRow("Yellow",  Color(0xFFFFFF00))
-            ColorRow("Green",   Color(0xFF00FF00))
-            ColorRow("Blue",    Color(0xFF0000FF))
-            ColorRow("Indigo",  Color(0xFF4B0082))
-            ColorRow("Violet",  Color(0xFFEE82EE))
+            colorsMap.forEach { (name, color) ->
+                ColorRow(name, color)
+            }
         }
     }
 }
@@ -97,12 +100,19 @@ fun ColorRow(name: String, color: Color) {
             .fillMaxWidth()
             .height(56.dp)
             .background(color)
-            .padding(16.dp),
+            .padding(horizontal = 16.dp),
         contentAlignment = Alignment.CenterStart
     ) {
         Text(
             text = name,
-            color = if (color.red + color.green + color.blue > 1.5f) Color.Black else Color.White
+            color = getContrastColor(color),
+            style = MaterialTheme.typography.titleMedium
         )
     }
+}
+
+@Composable
+fun getContrastColor(background: Color): Color {
+    val luminance = background.red + background.green + background.blue
+    return if (luminance > 1.5f) Color.Black else Color.White
 }
