@@ -64,7 +64,6 @@ fun MainScreen() {
         Button(
             onClick = {
                 val colorName = text.trim().lowercase()
-                val searchKey = colorName.replaceFirstChar { it.uppercase() }
                 val newColor = colorsMap[colorName]
 
                 if (newColor != null) {
