@@ -76,7 +76,9 @@ fun MainScreen() {
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = btnColor)
         ) {
-            Text("Применить цвет", color = Color.White)
+            Text(
+                text = "Применить цвет", color = getContrastColor(btnColor)
+            )
         }
 
         Spacer(Modifier.height(24.dp))
