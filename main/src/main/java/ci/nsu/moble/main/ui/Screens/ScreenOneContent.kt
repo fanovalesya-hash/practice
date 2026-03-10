@@ -12,7 +12,8 @@ import ci.nsu.moble.main.ui.theme.PracticeTheme
 @Composable
 fun ScreenOneContent() {
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("This is Screen One")
+        Text(text = "Экран 1")
+        Text(text = "Это содержимое первого экрана")
     }
 }
 @Preview(showBackground = true)

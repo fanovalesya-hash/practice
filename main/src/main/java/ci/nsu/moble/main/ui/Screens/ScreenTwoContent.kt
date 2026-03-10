@@ -12,7 +12,8 @@ import ci.nsu.moble.main.ui.theme.PracticeTheme
 @Composable
 fun ScreenTwoContent() {
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("This is Screen Two")
+        Text(text = "Экран 2")
+        Text(text = "Это содержимое второго экрана")
     }
 }
 @Preview(showBackground = true)
