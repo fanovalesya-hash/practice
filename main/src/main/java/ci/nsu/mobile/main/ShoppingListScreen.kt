@@ -1,4 +1,4 @@
-package ui
+package ci.nsu.mobile.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
