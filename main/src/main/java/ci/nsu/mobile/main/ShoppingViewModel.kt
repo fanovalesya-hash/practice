@@ -26,18 +26,23 @@ class ShoppingViewModel : ViewModel() {
     }
 
     fun addItem() {
-        val currentText = _uiState.value.newItemText
-        if (currentText.isNotBlank()) {
-            _uiState.update { currentState ->
-                val newItem = ShoppingItem(
-                    id = currentState.items.size + 1,
-                    name = currentText
-                )
-                currentState.copy(
-                    items = currentState.items + newItem,
-                    newItemText = ""
-                )
-            }
+        val currentText = _uiState.value.newItemText.trim()
+        if (currentText.isBlank()) return
+        val alreadyExists = _uiState.value.items.any {
+            it.name.equals(currentText, ignoreCase = true)
+        }
+        if (alreadyExists) {
+            return
+        }
+        _uiState.update { currentState ->
+            val newItem = ShoppingItem(
+                id = currentState.items.size + 1,
+                name = currentText
+            )
+            currentState.copy(
+                items = currentState.items + newItem,
+                newItemText = ""
+            )
         }
     }
 
