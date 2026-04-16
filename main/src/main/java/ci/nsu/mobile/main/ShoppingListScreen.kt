@@ -2,15 +2,12 @@ package ci.nsu.mobile.main
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
@@ -21,12 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun ShoppingListItem(
@@ -79,8 +73,6 @@ fun ShoppingListScreen() {
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-
-            // 1. Поле ввода + кнопка Добавить
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,7 +81,7 @@ fun ShoppingListScreen() {
             ) {
                 OutlinedTextField(
                     value = uiState.newItemText,
-                    onValueChange = viewModel::onNewItemTextChanged,   // упрощено
+                    onValueChange = viewModel::onNewItemTextChanged,
                     label = { Text("Название товара") },
                     modifier = Modifier
                         .weight(1f)
@@ -98,16 +90,14 @@ fun ShoppingListScreen() {
                 )
 
                 Button(
-                    onClick = viewModel::addItem,                     // упрощено
+                    onClick = viewModel::addItem,
                     enabled = uiState.newItemText.isNotBlank()
                 ) {
                     Text("Добавить")
                 }
             }
-
-            // 2. Список товаров
             LazyColumn(
-                modifier = Modifier.weight(1f)   // ← важно! чтобы не конфликтовать с пустым сообщением
+                modifier = Modifier.weight(1f)
             ) {
                 items(uiState.items, key = { it.id }) { item ->
                     ShoppingListItem(
@@ -118,7 +108,6 @@ fun ShoppingListScreen() {
                 }
             }
 
-            // Сообщение, если список пустой
             if (uiState.items.isEmpty()) {
                 Text(
                     text = "Список пока пуст. Добавьте первый товар!",
