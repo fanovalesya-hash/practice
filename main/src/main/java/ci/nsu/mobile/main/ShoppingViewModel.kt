@@ -55,7 +55,9 @@ class ShoppingViewModel : ViewModel() {
                     item
                 }
             }
-            currentState.copy(items = updatedItems)
+            currentState.copy(
+                items = sortItems(updatedItems)
+            )
         }
     }
 
@@ -64,5 +66,11 @@ class ShoppingViewModel : ViewModel() {
             val updatedItems = currentState.items.filterNot { it.id == itemId }
             currentState.copy(items = updatedItems)
         }
+    }
+
+    private fun sortItems(items: List<ShoppingItem>): List<ShoppingItem> {
+        val sortone = items.sortedBy{it.name}
+        val sorttwo = sortone.sortedBy{ it.isBought }
+        return sorttwo
     }
 }
