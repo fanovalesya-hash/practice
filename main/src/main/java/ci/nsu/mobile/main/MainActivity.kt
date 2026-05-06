@@ -37,6 +37,9 @@ fun DepositApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
+    // ✅ СОЗДАЕМ VIEWMODEL ОДИН РАЗ ЗДЕСЬ
+    val viewModel: DepositViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = Screen.Main) {
 
         composable(Screen.Main) {
@@ -47,8 +50,8 @@ fun DepositApp() {
             )
         }
 
+        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
         composable(Screen.Step1) {
-            val viewModel: DepositViewModel = viewModel()
             Step1Screen(
                 viewModel = viewModel,
                 onBackClick = { navController.navigate(Screen.Main) { popUpTo(0) } },
@@ -56,63 +59,51 @@ fun DepositApp() {
                     if (viewModel.initialAmount.isNotBlank() && viewModel.periodMonths.isNotBlank()) {
                         navController.navigate(Screen.Step2)
                     } else {
-                        viewModel.setError("Заполните все поля!")
+                        viewModel.errorMessage = "Заполните все поля!"
                     }
-                }
-            )
-        }
-        // Экран "Шаг 2"
-        composable(Screen.Step2) {
-            val viewModel: DepositViewModel = viewModel()
-            Step2Screen(
-                viewModel = viewModel,
-                onBackClick = { navController.popBackStack() }, // Возврат на Step1
-                onCalculateClick = {
-                    viewModel.calculateResult() // Запускаем расчёт
-                    if (viewModel.errorMessage == null) {
-                        navController.navigate(Screen.Result) // Переходим к результату только если нет ошибок
-                    }
-                }
-            )
-        }
-        composable(Screen.Result) {
-            val viewModel: DepositViewModel = viewModel()
-            ResultScreen(
-                viewModel = viewModel,
-                onToStartClick = {
-                    // Идём в начало и очищаем всю историю навигации
-                    navController.navigate(Screen.Main) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                    // Сбрасываем ошибку при переходе
-                    viewModel.errorMessage = null
-                },
-                onSaveClick = {
-                    viewModel.saveCalculation()
-                    // Можно показать сообщение об успехе (пока просто переходим в начало)
-                    navController.navigate(Screen.Main) {
-                        popUpTo(0) { inclusive = true }
-                    }
-                }
-            )
-        }
-        // Экран Истории
-        composable(Screen.History) {
-            val viewModel: DepositViewModel = viewModel()
-            HistoryScreen(
-                viewModel = viewModel,
-                onBackClick = { navController.popBackStack() },
-                onCalculationClick = { id ->
-                    // Переходим к деталям, подставляя ID в маршрут
-                    navController.navigate("history_detail/$id")
                 }
             )
         }
 
-        // Экран Деталей Истории
+        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
+        composable(Screen.Step2) {
+            Step2Screen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onCalculateClick = {
+                    viewModel.calculateResult()
+                    if (viewModel.errorMessage == null) {
+                        navController.navigate(Screen.Result)
+                    }
+                }
+            )
+        }
+
+        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
+        composable(Screen.Result) {
+            ResultScreen(
+                viewModel = viewModel,
+                onToStartClick = {
+                    navController.navigate(Screen.Main) { popUpTo(0) { inclusive = true } }
+                    viewModel.errorMessage = null
+                },
+                onSaveClick = {
+                    viewModel.saveCalculation()
+                    navController.navigate(Screen.Main) { popUpTo(0) { inclusive = true } }
+                }
+            )
+        }
+
+        // История и детали (тоже передаем viewModel)
+        composable(Screen.History) {
+            HistoryScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onCalculationClick = { id -> navController.navigate("history_detail/$id") }
+            )
+        }
+
         composable(Screen.HistoryDetail) { backStackEntry ->
-            val viewModel: DepositViewModel = viewModel()
-            // Извлекаем ID из аргументов навигации
             val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
             if (id != null) {
                 HistoryDetailScreen(

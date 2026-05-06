@@ -22,31 +22,24 @@ class DepositViewModel : ViewModel() {
 
     // Экран 1: Ввод
     var initialAmount by mutableStateOf("")
-        private set
 
     var periodMonths by mutableStateOf("")
-        private set
 
     // Экран 2: Настройки
     var monthlyTopUp by mutableStateOf("")
-        private set
 
     var selectedRate by mutableStateOf<Double?>(null)
 
     // Результат
     var resultFinalAmount by mutableStateOf<Double?>(null)
-        private set
 
     var resultTotalInterest by mutableStateOf<Double?>(null)
-        private set
 
     var errorMessage by mutableStateOf<String?>(null)
 
     var historyList by mutableStateOf<List<DepositCalculation>>(emptyList())
-        private set
 
     var selectedCalculation by mutableStateOf<DepositCalculation?>(null)
-        private set
 
     // === ДЕЙСТВИЯ (Actions) ===
 
