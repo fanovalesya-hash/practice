@@ -11,6 +11,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ci.nsu.mobile.main.ui.HistoryDetailScreen
+import ci.nsu.mobile.main.ui.HistoryScreen
 import ci.nsu.mobile.main.ui.MainScreen
 import ci.nsu.mobile.main.ui.ResultScreen
 import ci.nsu.mobile.main.ui.Screen
@@ -93,6 +95,32 @@ fun DepositApp() {
                     }
                 }
             )
+        }
+        // Экран Истории
+        composable(Screen.History) {
+            val viewModel: DepositViewModel = viewModel()
+            HistoryScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() },
+                onCalculationClick = { id ->
+                    // Переходим к деталям, подставляя ID в маршрут
+                    navController.navigate("history_detail/$id")
+                }
+            )
+        }
+
+        // Экран Деталей Истории
+        composable(Screen.HistoryDetail) { backStackEntry ->
+            val viewModel: DepositViewModel = viewModel()
+            // Извлекаем ID из аргументов навигации
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
+            if (id != null) {
+                HistoryDetailScreen(
+                    calculationId = id,
+                    viewModel = viewModel,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

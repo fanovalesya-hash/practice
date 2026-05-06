@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ci.nsu.mobile.main.data.database.AppDatabase
+import ci.nsu.mobile.main.data.model.DepositCalculation
 import ci.nsu.mobile.main.data.repository.DepositRepository
 import ci.nsu.mobile.main.domain.DepositCalculator
 import kotlinx.coroutines.launch
@@ -40,6 +41,12 @@ class DepositViewModel : ViewModel() {
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
+
+    var historyList by mutableStateOf<List<DepositCalculation>>(emptyList())
+        private set
+
+    var selectedCalculation by mutableStateOf<DepositCalculation?>(null)
+        private set
 
     // === ДЕЙСТВИЯ (Actions) ===
 
@@ -133,4 +140,28 @@ class DepositViewModel : ViewModel() {
             }
         }
     }
+
+    fun loadHistory() {
+        viewModelScope.launch {
+            try {
+                historyList = repository.getAllCalculations()
+            } catch (e: Exception) {
+                Log.e("DepositViewModel", "Ошибка загрузки истории: ${e.message}")
+            }
+        }
+    }
+
+    fun loadCalculationById(id: Long) {
+        viewModelScope.launch {
+            try {
+                selectedCalculation = repository.getCalculationById(id)
+            } catch (e: Exception) {
+                Log.e("DepositViewModel", "Ошибка загрузки расчёта: ${e.message}")
+            }
+        }
+    }
+    fun clearSelectedCalculation() {
+        selectedCalculation = null
+    }
+
 }

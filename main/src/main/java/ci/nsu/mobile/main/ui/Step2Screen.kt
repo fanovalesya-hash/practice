@@ -34,10 +34,10 @@ fun Step2Screen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // === ВЫПАДАЮЩИЙ СПИСОК СТАВКИ ===
+        // === ЛОГИКА ВЫБОРА СТАВКИ ===
         val months = viewModel.periodMonths.toIntOrNull()
 
-        // Формируем варианты в зависимости от срока
+        // Формируем доступные варианты
         val rateOptions = when {
             months == null -> listOf("Сначала укажите срок на шаге 1")
             months < 6 -> listOf("15%")
@@ -46,15 +46,17 @@ fun Step2Screen(
             else -> listOf("Некорректный срок")
         }
 
+        // Текст поля теперь вычисляется динамически из ViewModel!
+        val displayText = viewModel.selectedRate?.let { "${it.toInt()}%" } ?: rateOptions.first()
+
         var expanded by remember { mutableStateOf(false) }
-        var selectedText by remember { mutableStateOf(rateOptions.first()) }
 
         ExposedDropdownMenuBox(
             expanded = expanded,
             onExpandedChange = { expanded = !expanded }
         ) {
             OutlinedTextField(
-                value = selectedText,
+                value = displayText,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Процентная ставка") },
@@ -71,10 +73,10 @@ fun Step2Screen(
                     DropdownMenuItem(
                         text = { Text(option) },
                         onClick = {
-                            selectedText = option
+                            // При выборе обновляем ставку в ViewModel
+                            val rate = option.removeSuffix("%").toDoubleOrNull()
+                            viewModel.selectedRate = rate
                             expanded = false
-                            // Обновляем ставку в ViewModel
-                            viewModel.selectedRate = option.removeSuffix("%").toDoubleOrNull()
                         }
                     )
                 }
