@@ -31,7 +31,6 @@ class DepositViewModel : ViewModel() {
         private set
 
     var selectedRate by mutableStateOf<Double?>(null)
-        private set
 
     // Результат
     var resultFinalAmount by mutableStateOf<Double?>(null)
@@ -41,7 +40,6 @@ class DepositViewModel : ViewModel() {
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
-        private set
 
     // === ДЕЙСТВИЯ (Actions) ===
 
@@ -63,6 +61,9 @@ class DepositViewModel : ViewModel() {
         errorMessage = null
     }
 
+    fun setError(message: String) {
+        errorMessage = message
+    }
     // Обновление ежемесячного пополнения
     fun updateMonthlyTopUp(value: String) {
         monthlyTopUp = value
