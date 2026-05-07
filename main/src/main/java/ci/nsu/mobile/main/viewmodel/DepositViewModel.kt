@@ -1,6 +1,5 @@
 package ci.nsu.mobile.main.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,83 +13,67 @@ import kotlinx.coroutines.launch
 
 class DepositViewModel : ViewModel() {
 
-    // Получаем репозиторий (так как у нас синглтон, это безопасно)
+    // Репозиторий для работы с базой данных
     private val repository = DepositRepository(AppDatabase.getDatabase())
 
-    // === СОСТОЯНИЕ (State) ===
-    // Эти переменные автоматически обновляют экран при изменении
 
-    // Экран 1: Ввод
-    var initialAmount by mutableStateOf("")
+    var initialAmount by mutableStateOf("")      // Стартовый взнос
+    var periodMonths by mutableStateOf("")       // Срок в месяцах
 
-    var periodMonths by mutableStateOf("")
 
-    // Экран 2: Настройки
-    var monthlyTopUp by mutableStateOf("")
+    var monthlyTopUp by mutableStateOf("")       // Ежемесячное пополнение
+    var selectedRate by mutableStateOf<Double?>(null)  // Выбранная ставка
 
-    var selectedRate by mutableStateOf<Double?>(null)
 
-    // Результат
-    var resultFinalAmount by mutableStateOf<Double?>(null)
+    var resultFinalAmount by mutableStateOf<Double?>(null)    // Итоговая сумма
+    var resultTotalInterest by mutableStateOf<Double?>(null)  // Начисленные проценты
 
-    var resultTotalInterest by mutableStateOf<Double?>(null)
 
     var errorMessage by mutableStateOf<String?>(null)
-
     var historyList by mutableStateOf<List<DepositCalculation>>(emptyList())
-
     var selectedCalculation by mutableStateOf<DepositCalculation?>(null)
 
-    // === ДЕЙСТВИЯ (Actions) ===
 
-    // Обновление стартового взноса
     fun updateInitialAmount(value: String) {
         initialAmount = value
         errorMessage = null
     }
 
-    // Обновление срока и автоматический расчёт ставки
     fun updatePeriod(value: String) {
         periodMonths = value
-        val months = value.toIntOrNull()
-
-        // Автоматический выбор ставки по условию ТЗ
-        if (months != null) {
-            selectedRate = DepositCalculator.getRateForPeriod(months)
-        }
+        // Автоматически подбираем ставку по сроку
+        selectedRate = value.toIntOrNull()?.let { DepositCalculator.getRateForPeriod(it) }
         errorMessage = null
     }
 
-    fun setError(message: String) {
-        errorMessage = message
-    }
-    // Обновление ежемесячного пополнения
     fun updateMonthlyTopUp(value: String) {
         monthlyTopUp = value
         errorMessage = null
     }
 
-    // --- ПЕРЕХОД К РАСЧЁТУ ---
+
     fun calculateResult() {
-        // 1. Валидация
         val startAmount = initialAmount.toDoubleOrNull()
         val months = periodMonths.toIntOrNull()
         val topUp = monthlyTopUp.toDoubleOrNull()
 
-        if (startAmount == null || startAmount <= 0) {
-            errorMessage = "Введите корректную сумму стартового взноса"
-            return
-        }
-        if (months == null || months <= 0) {
-            errorMessage = "Введите корректный срок вклада"
-            return
-        }
-        if (selectedRate == null) {
-            errorMessage = "Не удалось определить ставку для указанного срока"
-            return
+        // Проверка валидности данных
+        when {
+            startAmount == null || startAmount <= 0 -> {
+                errorMessage = "Введите корректную сумму"
+                return
+            }
+            months == null || months <= 0 -> {
+                errorMessage = "Введите корректный срок"
+                return
+            }
+            selectedRate == null -> {
+                errorMessage = "Не удалось определить ставку"
+                return
+            }
         }
 
-        // 2. Расчёт
+        // Считаем итог
         val (final, interest, _) = DepositCalculator.calculate(
             initialAmount = startAmount,
             periodMonths = months,
@@ -98,63 +81,43 @@ class DepositViewModel : ViewModel() {
             monthlyTopUp = topUp
         )
 
-        // 3. Сохранение результатов в состояние
         resultFinalAmount = final
         resultTotalInterest = interest
         errorMessage = null
     }
 
-    // --- СОХРАНЕНИЕ В БАЗУ ---
+
     fun saveCalculation() {
         val startAmount = initialAmount.toDoubleOrNull()
         val months = periodMonths.toIntOrNull()
         val topUp = monthlyTopUp.toDoubleOrNull()
 
-        if (startAmount != null && months != null && resultFinalAmount != null && resultTotalInterest != null) {
-
-            // Запускаем корутину, чтобы не блокировать экран
+        if (startAmount != null && months != null && resultFinalAmount != null) {
             viewModelScope.launch {
-                val calculation = ci.nsu.mobile.main.data.model.DepositCalculation(
-                    initialAmount = startAmount,
-                    periodMonths = months,
-                    interestRate = selectedRate ?: 0.0,
-                    monthlyTopUp = topUp,
-                    finalAmount = resultFinalAmount!!,
-                    interestEarned = resultTotalInterest!!,
-                    calculationDate = System.currentTimeMillis()
+                repository.addCalculation(
+                    DepositCalculation(
+                        initialAmount = startAmount,
+                        periodMonths = months,
+                        interestRate = selectedRate ?: 0.0,
+                        monthlyTopUp = topUp,
+                        finalAmount = resultFinalAmount!!,
+                        interestEarned = resultTotalInterest!!,
+                        calculationDate = System.currentTimeMillis()
+                    )
                 )
-
-                try {
-                    repository.addCalculation(calculation)
-                    Log.d("DepositViewModel", "Сохранено в базу!")
-                } catch (e: Exception) {
-                    Log.e("DepositViewModel", "Ошибка сохранения: ${e.message}")
-                }
             }
         }
     }
 
     fun loadHistory() {
         viewModelScope.launch {
-            try {
-                historyList = repository.getAllCalculations()
-            } catch (e: Exception) {
-                Log.e("DepositViewModel", "Ошибка загрузки истории: ${e.message}")
-            }
+            historyList = repository.getAllCalculations()
         }
     }
 
     fun loadCalculationById(id: Long) {
         viewModelScope.launch {
-            try {
-                selectedCalculation = repository.getCalculationById(id)
-            } catch (e: Exception) {
-                Log.e("DepositViewModel", "Ошибка загрузки расчёта: ${e.message}")
-            }
+            selectedCalculation = repository.getCalculationById(id)
         }
     }
-    fun clearSelectedCalculation() {
-        selectedCalculation = null
-    }
-
 }

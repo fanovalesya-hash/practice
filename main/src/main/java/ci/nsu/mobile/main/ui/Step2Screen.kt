@@ -20,62 +20,41 @@ fun Step2Screen(
     onCalculateClick: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Дополнительные параметры",
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
-        )
-
+        Text("Дополнительные параметры", style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold))
         Spacer(modifier = Modifier.height(24.dp))
 
-        // === ЛОГИКА ВЫБОРА СТАВКИ ===
+        //ВЫБОР СТАВКИ
         val months = viewModel.periodMonths.toIntOrNull()
 
-        // Формируем доступные варианты
-        val rateOptions = when {
-            months == null -> listOf("Сначала укажите срок на шаге 1")
-            months < 6 -> listOf("15%")
-            months in 6..11 -> listOf("10%")
-            months >= 12 -> listOf("5%")
-            else -> listOf("Некорректный срок")
+        // Определяем доступные ставки и текст для отображения
+        val (rateOptions, displayText) = when {
+            months == null -> listOf("Укажите срок на шаге 1") to "—"
+            months < 6 -> listOf("15%") to "15%"
+            months in 6..11 -> listOf("10%") to "10%"
+            else -> listOf("5%") to "5%"
         }
-
-        // Текст поля теперь вычисляется динамически из ViewModel!
-        val displayText = viewModel.selectedRate?.let { "${it.toInt()}%" } ?: rateOptions.first()
 
         var expanded by remember { mutableStateOf(false) }
 
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             OutlinedTextField(
-                value = displayText,
+                value = viewModel.selectedRate?.let { "${it.toInt()}%" } ?: displayText,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Процентная ставка") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth()
             )
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 rateOptions.forEach { option ->
                     DropdownMenuItem(
                         text = { Text(option) },
                         onClick = {
-                            // При выборе обновляем ставку в ViewModel
-                            val rate = option.removeSuffix("%").toDoubleOrNull()
-                            viewModel.selectedRate = rate
+                            viewModel.selectedRate = option.removeSuffix("%").toDoubleOrNull()
                             expanded = false
                         }
                     )
@@ -85,7 +64,7 @@ fun Step2Screen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // === ЕЖЕМЕСЯЧНОЕ ПОПОЛНЕНИЕ ===
+        //ПОПОЛНЕНИЕ
         OutlinedTextField(
             value = viewModel.monthlyTopUp,
             onValueChange = { viewModel.updateMonthlyTopUp(it) },
@@ -94,31 +73,16 @@ fun Step2Screen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Ошибка валидации
-        viewModel.errorMessage?.let { error ->
+        viewModel.errorMessage?.let {
             Spacer(modifier = Modifier.height(8.dp))
-            Text(text = error, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
+            Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // === КНОПКИ ===
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            OutlinedButton(
-                onClick = onBackClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Назад")
-            }
-            Button(
-                onClick = onCalculateClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("Рассчитать")
-            }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            OutlinedButton(onClick = onBackClick, modifier = Modifier.weight(1f)) { Text("Назад") }
+            Button(onClick = onCalculateClick, modifier = Modifier.weight(1f)) { Text("Рассчитать") }
         }
     }
 }

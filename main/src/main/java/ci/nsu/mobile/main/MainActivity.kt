@@ -37,11 +37,12 @@ fun DepositApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
-    // ✅ СОЗДАЕМ VIEWMODEL ОДИН РАЗ ЗДЕСЬ
+    // Создаём ViewModel ОДИН раз — она будет общей для всех экранов
     val viewModel: DepositViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = Screen.Main) {
 
+        // Главный экран
         composable(Screen.Main) {
             MainScreen(
                 onCalculateClick = { navController.navigate(Screen.Step1) },
@@ -50,7 +51,7 @@ fun DepositApp() {
             )
         }
 
-        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
+        // Шаг 1: ввод суммы и срока
         composable(Screen.Step1) {
             Step1Screen(
                 viewModel = viewModel,
@@ -65,7 +66,7 @@ fun DepositApp() {
             )
         }
 
-        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
+        // Шаг 2: ставка и пополнение
         composable(Screen.Step2) {
             Step2Screen(
                 viewModel = viewModel,
@@ -79,7 +80,7 @@ fun DepositApp() {
             )
         }
 
-        // ✅ ПЕРЕДАЕМ ТОТ ЖЕ viewModel
+        // Результат
         composable(Screen.Result) {
             ResultScreen(
                 viewModel = viewModel,
@@ -94,7 +95,7 @@ fun DepositApp() {
             )
         }
 
-        // История и детали (тоже передаем viewModel)
+        // История
         composable(Screen.History) {
             HistoryScreen(
                 viewModel = viewModel,
@@ -103,6 +104,7 @@ fun DepositApp() {
             )
         }
 
+        // Детали истории
         composable(Screen.HistoryDetail) { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
             if (id != null) {

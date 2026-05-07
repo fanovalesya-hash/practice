@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,15 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ci.nsu.mobile.main.data.model.DepositCalculation
 import ci.nsu.mobile.main.viewmodel.DepositViewModel
-import java.text.SimpleDateFormat
-import java.util.*
-import androidx.compose.material.icons.filled.ArrowBack
-
-// Форматирование даты
-private fun formatDate(timestamp: Long): String {
-    val sdf = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-    return sdf.format(Date(timestamp))
-}
 
 @Composable
 fun HistoryScreen(
@@ -29,17 +22,15 @@ fun HistoryScreen(
     onBackClick: () -> Unit,
     onCalculationClick: (Long) -> Unit
 ) {
-    // Загружаем историю при открытии экрана
+    // Загружаем историю при первом показе экрана
     LaunchedEffect(Unit) {
         viewModel.loadHistory()
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
-        // Заголовок
+        // Заголовок + кнопка "Назад"
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -51,31 +42,27 @@ fun HistoryScreen(
                 color = MaterialTheme.colorScheme.primary
             )
             IconButton(onClick = onBackClick) {
-                Icon(
-                    androidx.compose.material.icons.Icons.Default.ArrowBack,
-                    contentDescription = "Назад"
-                )
+                Icon(Icons.Default.ArrowBack, contentDescription = "Назад")
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Список расчётов
+        // Если история пуста
         if (viewModel.historyList.isEmpty()) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "История пуста",
+                    text = "История пуста — сделайте первый расчёт!",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            // Список расчётов
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(viewModel.historyList) { calculation ->
                     HistoryItem(
                         calculation = calculation,
@@ -87,7 +74,7 @@ fun HistoryScreen(
     }
 }
 
-// Элемент списка
+// Элемент списка: одна карточка с краткой информацией
 @Composable
 private fun HistoryItem(
     calculation: DepositCalculation,
@@ -102,22 +89,26 @@ private fun HistoryItem(
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Дата расчёта
             Text(
-                text = formatDate(calculation.calculationDate),
+                text = formatDate(calculation.calculationDate, withTime = true),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(modifier = Modifier.height(4.dp))
+
+            // Сумма и срок
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Взнос: ${String.format("%.0f ₽", calculation.initialAmount)}")
+                    Text("Взнос: ${formatMoney(calculation.initialAmount)}")
                     Text("Срок: ${calculation.periodMonths} мес.")
                 }
+                // Итоговая сумма (выделена)
                 Text(
-                    text = String.format("%.0f ₽", calculation.finalAmount),
+                    text = formatMoney(calculation.finalAmount),
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
                     fontSize = 16.sp
