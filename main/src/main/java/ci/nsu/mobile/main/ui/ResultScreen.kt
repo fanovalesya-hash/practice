@@ -11,10 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ci.nsu.mobile.main.viewmodel.DepositViewModel
 
-// Вспомогательная функция для красивого вывода денег
-private fun formatMoney(value: Double): String {
-    return String.format("%.2f ₽", value)
-}
 
 @Composable
 fun ResultScreen(
