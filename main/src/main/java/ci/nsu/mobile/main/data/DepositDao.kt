@@ -1,16 +1,16 @@
-package ci.nsu.mobile.main.data.dao
+package ci.nsu.mobile.main.data
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import ci.nsu.mobile.main.data.model.DepositCalculation
 
+//запросы к базе данных
 @Dao
 interface DepositDao {
 
     // Вставить запись в базу (если есть конфликт - заменить)
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     suspend fun insertCalculation(calculation: DepositCalculation)
 
     // Получить все записи, отсортированные по дате (новые сверху)

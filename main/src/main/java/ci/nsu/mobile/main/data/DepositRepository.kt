@@ -1,7 +1,5 @@
-package ci.nsu.mobile.main.data.repository
+package ci.nsu.mobile.main.data
 
-import ci.nsu.mobile.main.data.database.AppDatabase
-import ci.nsu.mobile.main.data.model.DepositCalculation
 
 class DepositRepository(private val database: AppDatabase) {
 

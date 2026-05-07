@@ -1,12 +1,11 @@
-package ci.nsu.mobile.main.data.database
+package ci.nsu.mobile.main.data
 
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import ci.nsu.mobile.main.DepositApplication
-import ci.nsu.mobile.main.data.dao.DepositDao
-import ci.nsu.mobile.main.data.model.DepositCalculation
 
+//база данных (синглтон)
 @Database(entities = [DepositCalculation::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -21,7 +20,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    DepositApplication.instance, // Берем контекст из нашего Application
+                    DepositApplication.Companion.instance, // Берем контекст из нашего Application
                     AppDatabase::class.java,
                     "deposit_database" // Имя файла базы
                 ).build()

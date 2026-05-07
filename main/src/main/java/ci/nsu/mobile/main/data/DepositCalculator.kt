@@ -1,4 +1,4 @@
-package ci.nsu.mobile.main.domain
+package ci.nsu.mobile.main.data
 
 object DepositCalculator {
 

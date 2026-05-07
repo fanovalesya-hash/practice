@@ -1,8 +1,9 @@
-package ci.nsu.mobile.main.data.model
+package ci.nsu.mobile.main.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+//модель таблицы
 @Entity(tableName = "deposit_calculations")
 data class DepositCalculation(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

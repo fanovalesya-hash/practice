@@ -5,10 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import ci.nsu.mobile.main.data.database.AppDatabase
-import ci.nsu.mobile.main.data.model.DepositCalculation
-import ci.nsu.mobile.main.data.repository.DepositRepository
-import ci.nsu.mobile.main.domain.DepositCalculator
+import ci.nsu.mobile.main.data.AppDatabase
+import ci.nsu.mobile.main.data.DepositCalculation
+import ci.nsu.mobile.main.data.DepositRepository
+import ci.nsu.mobile.main.data.DepositCalculator
 import kotlinx.coroutines.launch
 
 class DepositViewModel : ViewModel() {
