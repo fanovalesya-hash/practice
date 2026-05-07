@@ -33,6 +33,15 @@ class DepositViewModel : ViewModel() {
     var historyList by mutableStateOf<List<DepositCalculation>>(emptyList())
     var selectedCalculation by mutableStateOf<DepositCalculation?>(null)
 
+    fun resetState() {
+        initialAmount = ""
+        periodMonths = ""
+        monthlyTopUp = ""
+        selectedRate = null
+        resultFinalAmount = null
+        resultTotalInterest = null
+        errorMessage = null
+    }
 
     fun updateInitialAmount(value: String) {
         initialAmount = value

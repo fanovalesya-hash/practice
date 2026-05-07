@@ -45,7 +45,9 @@ fun DepositApp() {
         // Главный экран
         composable(Screen.Main) {
             MainScreen(
-                onCalculateClick = { navController.navigate(Screen.Step1) },
+                onCalculateClick = {
+                    viewModel.resetState()
+                    navController.navigate(Screen.Step1)},
                 onHistoryClick = { navController.navigate(Screen.History) },
                 onExitClick = { (context as? Activity)?.finish() }
             )
@@ -85,11 +87,13 @@ fun DepositApp() {
             ResultScreen(
                 viewModel = viewModel,
                 onToStartClick = {
+                    viewModel.resetState()
                     navController.navigate(Screen.Main) { popUpTo(0) { inclusive = true } }
                     viewModel.errorMessage = null
                 },
                 onSaveClick = {
                     viewModel.saveCalculation()
+                    viewModel.resetState()
                     navController.navigate(Screen.Main) { popUpTo(0) { inclusive = true } }
                 }
             )
